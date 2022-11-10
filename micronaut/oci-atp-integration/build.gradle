@@ -1,0 +1,67 @@
+plugins {
+    id("com.github.johnrengelman.shadow") version "7.1.2"
+    id("io.micronaut.application") version "3.6.2"
+    id("io.micronaut.test-resources") version "3.6.2"
+}
+
+version = "1.0.0"
+group = "com.oracle.jp.fn"
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    annotationProcessor("io.micronaut.data:micronaut-data-processor")
+    implementation("io.micronaut:micronaut-jackson-databind")
+    implementation("io.micronaut.data:micronaut-data-hibernate-jpa")
+    implementation("io.micronaut.oraclecloud:micronaut-oraclecloud-atp")
+    implementation("io.micronaut.oraclecloud:micronaut-oraclecloud-sdk")
+    implementation("io.micronaut.oraclecloud:micronaut-oraclecloud-vault")
+    implementation("io.micronaut.sql:micronaut-jdbc-hikari")
+    implementation("jakarta.annotation:jakarta.annotation-api")
+    runtimeOnly("org.slf4j:slf4j-simple")
+    implementation("io.micronaut:micronaut-validation")
+
+    testImplementation("io.micronaut:micronaut-http-client")
+
+}
+
+
+application {
+    mainClass.set("com.oracle.jp.fn.Application")
+}
+java {
+    sourceCompatibility = JavaVersion.toVersion("11")
+    targetCompatibility = JavaVersion.toVersion("11")
+}
+
+tasks {
+    dockerfileNative {
+      args("-XX:MaximumHeapSizePercent=80")
+    }
+    dockerBuild {
+        images = ["nrt.ocir.io/orasejapan/shukawam/fn/$project.name:$project.version"]
+    }
+
+    dockerBuildNative {
+        images = ["nrt.ocir.io/orasejapan/shukawam/fn/$project.name-native:$project.version"]
+    }
+}
+graalvmNative.toolchainDetection = false
+graalvmNative {
+    binaries.configureEach {
+        buildArgs.add("--initialize-at-build-time=com.oracle.jp.fn")
+    }
+}
+micronaut {
+    runtime("oracle_function")
+    testRuntime("junit5")
+    processing {
+        incremental(true)
+        annotations("com.oracle.jp.fn.*")
+    }
+}
+
+
+

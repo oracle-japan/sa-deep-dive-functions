@@ -1,0 +1,20 @@
+datasources:
+  default:
+    ocid: 'ocid1.autonomousdatabase.oc1.ap-tokyo-1.anxhiljrssl65iqalxxdbeycxkf4hgewvzttayfdfw67b6puagc5ezwjsruq'
+    walletPassword: ${countryDS.walletPassword:}
+    dialect: ORACLE
+    username: ${countryDS.user:}
+    password: ${countryDS.password:}
+
+oci:
+  config:
+    profile: DEFAULT
+
+jpa:
+  default:
+    properties:
+      hibernate:
+        hbm2ddl:
+          auto: update
+    entity-scan:
+      packages: 'com.oracle.jp.fn.country'
